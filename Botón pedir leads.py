@@ -37,6 +37,11 @@ hoy = datetime.date.today()
 zona_horaria_offset = datetime.timedelta(hours=3)
 inicio_dia_local = datetime.datetime.combine(hoy, datetime.time(0, 0)) + zona_horaria_offset
 fin_dia_local = inicio_dia_local + datetime.timedelta(days=1)
+fecha_limite_junior = user.x_fecha_ascenso_junior
+inicio_semana = hoy - datetime.timedelta(days=7)
+
+if fecha_limite_junior and fecha_limite_junior > inicio_semana:
+    inicio_semana = fecha_limite_junior
 
 # Verificamos los leads ya asignados
 leads_usuario = env['crm.lead'].sudo().search([('user_id', '=', user.id), ('active', '=', True)])
@@ -77,7 +82,7 @@ else:
     # Leads asignados automáticamente en los últimos 7 días a este usuario
     cantidad_semana = env['crm.lead'].sudo().search_count([
         ('x_ultimo_asignado_por_fecha', '=', user.id),
-        ('x_fecha_asignacion', '>=', hoy - datetime.timedelta(days=7)),
+        ('x_fecha_asignacion', '>=', inicio_semana),
         ('x_fecha_asignacion', '<', hoy + datetime.timedelta(days=1)),
         ('active', 'in', [True, False])
     ])
